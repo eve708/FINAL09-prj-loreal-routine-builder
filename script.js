@@ -313,13 +313,14 @@ async function generateRoutineWithAI(selectedProducts) {
     },
   ];
 
+  // Use Cloudflare Worker URL for secure API calls
+  const workerUrl = "https://loreal.18alopez6.workers.dev/";
   try {
-    // Make the API request to OpenAI
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Make the API request to the Worker (no API key in frontend)
+    const response = await fetch(workerUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: "gpt-4o",
@@ -394,12 +395,12 @@ chatForm.addEventListener("submit", async (e) => {
   chatWindow.scrollTop = chatWindow.scrollHeight;
 
   try {
-    // Send the full chat history to OpenAI, so it remembers the conversation
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Send the full chat history to the Worker (no API key in frontend)
+    const workerUrl = "https://loreal.18alopez6.workers.dev/";
+    const response = await fetch(workerUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: "gpt-4o",
