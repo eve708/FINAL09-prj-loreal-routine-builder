@@ -186,6 +186,7 @@ body {
   display: flex;
   gap: 15px;
   min-height: 160px;
+  position: relative; /* for overlay positioning */
 }
 
 .product-card img {
@@ -211,6 +212,33 @@ body {
 .product-card p {
   font-size: 14px;
   color: #666;
+}
+
+/* L'Oréal brand colors */
+:root {
+  --loreal-red: #ff003b;
+  --loreal-gold: #e3a535;
+}
+
+/* Highlight selected product card with brand color */
+.product-card.selected {
+  border: 2px solid var(--loreal-red);
+  background: #ffe6ec;
+}
+
+/* Style for remove button in selected products list */
+.selected-product-remove {
+  background: none;
+  border: none;
+  color: #d32f2f;
+  font-size: 18px;
+  cursor: pointer;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.selected-product-remove:hover {
+  color: #b71c1c;
 }
 
 /* selected products */
@@ -252,4 +280,91 @@ body {
 
 .generate-btn i {
   margin-right: 8px;
+}
+
+/* Description toggle button */
+.product-desc-toggle {
+  background: var(--loreal-gold);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.product-desc-toggle:hover,
+.product-desc-toggle:focus {
+  background: var(--loreal-red);
+  outline: none;
+}
+
+/* Product description overlay */
+.product-desc-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.98);
+  color: #222;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  font-size: 15px;
+  z-index: 2;
+  text-align: left;
+  line-height: 1.6;
+  transition: opacity 0.2s;
+}
+
+/* RTL support: set direction and flip layout for RTL languages */
+html[dir="rtl"],
+body[dir="rtl"] {
+  direction: rtl;
+}
+
+body[dir="rtl"] .page-wrapper {
+  text-align: right;
+}
+
+body[dir="rtl"] .search-section,
+body[dir="rtl"] .products-grid,
+body[dir="rtl"] #selectedProductsList {
+  flex-direction: row-reverse;
+}
+
+body[dir="rtl"] .product-card {
+  flex-direction: row-reverse;
+}
+
+body[dir="rtl"] .product-info {
+  text-align: right;
+}
+
+body[dir="rtl"] .selected-products {
+  text-align: right;
+}
+
+body[dir="rtl"] .chatbox {
+  text-align: right;
+}
+
+body[dir="rtl"] .chat-form {
+  flex-direction: row-reverse;
+}
+
+body[dir="rtl"] .site-footer {
+  text-align: right;
+}
+
+/* Ensure overlay and buttons look correct in RTL */
+body[dir="rtl"] .product-desc-overlay {
+  text-align: right;
 }
