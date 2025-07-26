@@ -13,7 +13,7 @@
   min-height: 28px;
   align-self: flex-start;
   margin-bottom: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .chat-typing-dots {
@@ -41,8 +41,16 @@
 }
 
 @keyframes chat-typing-bounce {
-  0%, 80%, 100% { transform: scale(0.7); opacity: 0.7; }
-  40% { transform: scale(1.2); opacity: 1; }
+  0%,
+  80%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
 }
 /* Loading spinner for chat status */
 .chat-loading-spinner {
