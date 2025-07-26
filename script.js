@@ -254,14 +254,19 @@ function addToChatHistory(role, content) {
   chatHistory.push({ role, content });
 }
 
-// Function to display the chat history in the chat window
+// Function to display the chat history in the chat window with bubbles
 function renderChatHistory() {
   chatWindow.innerHTML = chatHistory
     .map((msg) => {
       if (msg.role === "user") {
-        return `<div style="margin-bottom:8px;"><strong>You:</strong> ${msg.content}</div>`;
+        // User message bubble, right side
+        return `<div class="chat-message user">${msg.content.replace(
+          /\n/g,
+          "<br>"
+        )}</div>`;
       } else if (msg.role === "assistant") {
-        return `<div style="margin-bottom:16px;"><strong>Advisor:</strong> ${msg.content.replace(
+        // Advisor message bubble, left side
+        return `<div class="chat-message assistant">${msg.content.replace(
           /\n/g,
           "<br>"
         )}</div>`;
@@ -270,12 +275,20 @@ function renderChatHistory() {
       }
     })
     .join("");
+
+  // Scroll chat window so the latest message is at the top of the visible area
+  const lastMsg = chatWindow.lastElementChild;
+  if (lastMsg) {
+    lastMsg.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 // Function to generate a personalized routine using OpenAI
 async function generateRoutineWithAI(selectedProducts) {
-  chatWindow.innerHTML = "<div>Generating your personalized routine...</div>";
+  // Show loading message with spinner
+  chatWindow.innerHTML = `<div>Generating your personalized routine... <span class="chat-loading-spinner"></span></div>`;
 
+  // Prepare product data for the AI
   const productData = selectedProducts.map((product) => ({
     name: product.name,
     brand: product.brand,
@@ -283,7 +296,7 @@ async function generateRoutineWithAI(selectedProducts) {
     description: getShortDescription(product.description),
   }));
 
-  // Start a new chat history for the routine
+  // Start a new chat history for the routine, including a system message
   chatHistory = [
     {
       role: "system",
@@ -301,6 +314,7 @@ async function generateRoutineWithAI(selectedProducts) {
   ];
 
   try {
+    // Make the API request to OpenAI
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -316,6 +330,7 @@ async function generateRoutineWithAI(selectedProducts) {
 
     const data = await response.json();
 
+    // Check if the response contains the assistant's message
     if (
       data &&
       data.choices &&
@@ -323,7 +338,7 @@ async function generateRoutineWithAI(selectedProducts) {
       data.choices[0].message &&
       data.choices[0].message.content
     ) {
-      // Add assistant's routine to chat history
+      // Add the assistant's routine to the chat history
       addToChatHistory("assistant", data.choices[0].message.content);
       renderChatHistory();
     } else {
@@ -343,23 +358,43 @@ generateRoutineBtn.addEventListener("click", async () => {
       "<div>Please select at least one product to generate a routine.</div>";
     return;
   }
+
+  // Scroll to the chatbox and center it in the viewport
+  const chatbox = document.querySelector(".chatbox");
+  if (chatbox) {
+    chatbox.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   await generateRoutineWithAI(selectedProducts);
 });
 
 // Chat form submission handler for follow-up questions
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const userInput = document.getElementById("userInput").value.trim();
+  const userInputElem = document.getElementById("userInput");
+  const userInput = userInputElem.value.trim();
   if (!userInput) return;
+
+  // Clear the input field immediately after sending
+  userInputElem.value = "";
 
   // Add user's question to chat history
   addToChatHistory("user", userInput);
   renderChatHistory();
 
-  // Show loading message
-  chatWindow.innerHTML += "<div>Advisor is typing...</div>";
+  // Show advisor typing indicator bubble with animated dots
+  const typingBubble = document.createElement("div");
+  typingBubble.className = "chat-typing-indicator";
+  typingBubble.innerHTML = `<span class="chat-typing-dots">
+    <span class="chat-typing-dot"></span>
+    <span class="chat-typing-dot"></span>
+    <span class="chat-typing-dot"></span>
+  </span>`;
+  chatWindow.appendChild(typingBubble);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
 
   try {
+    // Send the full chat history to OpenAI, so it remembers the conversation
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -372,6 +407,9 @@ chatForm.addEventListener("submit", async (e) => {
         max_tokens: 400,
       }),
     });
+
+    // Remove typing indicator after response
+    typingBubble.remove();
 
     const data = await response.json();
 
@@ -390,12 +428,10 @@ chatForm.addEventListener("submit", async (e) => {
         "<div>Sorry, I couldn't answer that. Please try again.</div>";
     }
   } catch (error) {
+    typingBubble.remove();
     chatWindow.innerHTML +=
       "<div>There was an error connecting to the AI. Please try again later.</div>";
   }
-
-  // Clear the input field
-  document.getElementById("userInput").value = "";
 });
 
 // On page load, restore selected products from localStorage
